@@ -1,24 +1,134 @@
-<div class="container">
-  <h2>Signal Analysis UI</h2>
-  <div class="input-group">
-    <label for="amplitude">Amplitude (A):</label>
-    <input type="number" id="amplitude" step="0.1" placeholder="Enter Amplitude">
-  </div>
-  
-  <div class="input-group">
-    <label for="sigma">Sigma (σ):</label>
-    <input type="number" id="sigma" step="0.1" placeholder="Enter Sigma">
-  </div>
-  
-  <div class="input-group">
-    <label for="omega">Omega (ω):</label>
-    <input type="number" id="omega" step="0.1" placeholder="Enter Omega">
-  </div>
-  
-  <button onclick="getSignalExpression()">Get Signal Expression</button>
-  <button onclick="plotSignal()">Plot Signal</button>
-  
-  <div id="expressionOutput"></div>
-  <div id="plotOutput"></div>
-</div>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Analysis UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            margin: 10px 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #expressionOutput {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #plotOutput {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Signal Analysis UI</h2>
+        <div class="input-group">
+            <label for="amplitude">Amplitude (A):</label>
+            <input type="number" id="amplitude" step="0.1" placeholder="Enter Amplitude">
+        </div>
+
+        <div class="input-group">
+            <label for="sigma">Sigma (σ):</label>
+            <input type="number" id="sigma" step="0.1" placeholder="Enter Sigma">
+        </div>
+
+        <div class="input-group">
+            <label for="omega">Omega (ω):</label>
+            <input type="number" id="omega" step="0.1" placeholder="Enter Omega">
+        </div>
+
+        <button onclick="getSignalExpression()">Get Signal Expression</button>
+        <button onclick="plotSignal()">Plot Signal</button>
+
+        <div id="expressionOutput"></div>
+        <div id="plotOutput"></div>
+    </div>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+        function getSignalExpression() {
+            const amplitude = parseFloat(document.getElementById("amplitude").value);
+            const sigma = parseFloat(document.getElementById("sigma").value);
+            const omega = parseFloat(document.getElementById("omega").value);
+
+            if (!isNaN(amplitude) && !isNaN(sigma) && !isNaN(omega)) {
+                const expression = `${amplitude} * exp((${sigma} + j${omega}) * t)`;
+                document.getElementById("expressionOutput").innerHTML = `Signal Expression: ${expression}`;
+            } else {
+                alert("Please enter all values.");
+            }
+        }
+
+        function plotSignal() {
+            const amplitude = parseFloat(document.getElementById("amplitude").value);
+            const sigma = parseFloat(document.getElementById("sigma").value);
+            const omega = parseFloat(document.getElementById("omega").value);
+
+            if (!isNaN(amplitude) && !isNaN(sigma) && !isNaN(omega)) {
+                const t = Array.from({ length: 100 }, (_, i) => i / 10);
+                const signal = t.map(time => amplitude * Math.exp(sigma * time) * Math.cos(omega * time));
+
+                const trace = {
+                    x: t,
+                    y: signal,
+                    type: 'scatter'
+                };
+
+                const layout = {
+                    title: 'Signal Plot',
+                    xaxis: { title: 'Time (t)' },
+                    yaxis: { title: 'Amplitude' },
+                };
+
+                Plotly.newPlot('plotOutput', [trace], layout);
+            } else {
+                alert("Please enter all values.");
+            }
+        }
+    </script>
+</body>
+</html>

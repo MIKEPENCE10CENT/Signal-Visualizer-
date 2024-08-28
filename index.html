@@ -57,7 +57,7 @@
             font-weight: bold;
         }
 
-        #plotOutput {
+        #plotOutput, #fftOutput {
             margin-top: 20px;
         }
     </style>
@@ -82,9 +82,11 @@
 
         <button onclick="getSignalExpression()">Get Signal Expression</button>
         <button onclick="plotSignal()">Plot Signal</button>
+        <button onclick="plotFFT()">Plot FFT</button>
 
         <div id="expressionOutput"></div>
         <div id="plotOutput"></div>
+        <div id="fftOutput"></div>
     </div>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -125,6 +127,47 @@
                 };
 
                 Plotly.newPlot('plotOutput', [trace], layout);
+            } else {
+                alert("Please enter all values.");
+            }
+        }
+
+        function plotFFT() {
+            const amplitude = parseFloat(document.getElementById("amplitude").value);
+            const sigma = parseFloat(document.getElementById("sigma").value);
+            const omega = parseFloat(document.getElementById("omega").value);
+
+            if (!isNaN(amplitude) && !isNaN(sigma) && !isNaN(omega)) {
+                const t = Array.from({ length: 100 }, (_, i) => i / 10);
+                const signal = t.map(time => amplitude * Math.exp(sigma * time) * Math.cos(omega * time));
+
+                // FFT Calculation
+                const N = signal.length;
+                const fft = signal.map((_, n) => {
+                    let real = 0;
+                    let imag = 0;
+                    for (let k = 0; k < N; k++) {
+                        real += signal[k] * Math.cos(-2 * Math.PI * n * k / N);
+                        imag += signal[k] * Math.sin(-2 * Math.PI * n * k / N);
+                    }
+                    return Math.sqrt(real ** 2 + imag ** 2);
+                });
+
+                const frequencies = t.map((_, n) => n / (N * 0.1));  // Frequency in Hz (assuming 0.1 time step)
+
+                const fftTrace = {
+                    x: frequencies,
+                    y: fft,
+                    type: 'scatter'
+                };
+
+                const layout = {
+                    title: 'FFT Plot',
+                    xaxis: { title: 'Frequency (Hz)' },
+                    yaxis: { title: 'Magnitude' },
+                };
+
+                Plotly.newPlot('fftOutput', [fftTrace], layout);
             } else {
                 alert("Please enter all values.");
             }
